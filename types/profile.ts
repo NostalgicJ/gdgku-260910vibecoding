@@ -8,7 +8,6 @@ export type Hero = {
   title: string;
   name: string;
   nameEn: string;
-  major: string;
 };
 
 export type Entry = {

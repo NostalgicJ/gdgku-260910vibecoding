@@ -40,7 +40,7 @@
 구조 (자세한 타입은 `types/profile.ts`):
 
 - `stamp` — `{ top, bottom }`: 페이지 위아래 필름 롤 띠에 들어가는 문구
-- `hero` — `{ eyebrow, title, name, nameEn, major }`
+- `hero` — `{ eyebrow, title, name, nameEn }`
 - `frames` — `Frame[]`: 본문 섹션 목록. 배열 순서가 곧 화면 순서입니다.
   - `Frame = { frame: "01", label: "DAILY ROUTINE", title, groups: Group[] }`
   - `Group = { label?, layout: "sheet" | "list" | "timeline", items: Entry[] }`
