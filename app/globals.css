@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  @apply bg-stone-50 font-sans text-stone-900 dark:bg-stone-950 dark:text-stone-100;
+}
