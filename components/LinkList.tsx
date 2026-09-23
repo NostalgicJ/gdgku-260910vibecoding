@@ -9,16 +9,16 @@ export default function LinkList({ links }: Props) {
 
   return (
     <nav>
-      <ul className="flex flex-wrap justify-center gap-3">
+      <ul className="flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm tracking-[0.1em] uppercase">
         {links.map((link) => (
           <li key={link.url}>
             <a
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-full border border-stone-300 px-4 py-2 text-sm font-medium transition-colors hover:border-amber-500 hover:text-amber-600 dark:border-stone-700"
+              className="border-b border-paper/40 pb-0.5 hover:border-paper"
             >
-              {link.label}
+              {link.label} ↗
             </a>
           </li>
         ))}

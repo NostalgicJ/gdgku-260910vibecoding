@@ -35,21 +35,25 @@
 - 모든 콘텐츠는 **로컬 JSON 파일** `data/profile.json`에서 관리합니다.
 - 컴포넌트에 소개 글, 관심사, 링크 등의 텍스트를 하드코딩하지 마세요. 항상 JSON에서 읽어옵니다.
 - JSON은 `import`로 정적으로 불러옵니다 (`fetch`나 `fs` 사용 X).
-- JSON 구조에 대응하는 타입을 `types/profile.ts`에 정의하고, import한 데이터에 타입을 적용합니다.
+- JSON 구조에 대응하는 타입을 `types/profile.ts`에 정의합니다. `app/page.tsx`에서 `profileJson as Profile`로 타입을 붙입니다. JSON import는 `layout` 값을 `string`으로 넓혀 추론하기 때문입니다.
 
 구조 (자세한 타입은 `types/profile.ts`):
 
-- `hero` — `{ greeting, name, highlight, tagline }` (`highlight`는 강조색으로 표시)
-- 섹션 공통 형태 `Section<T>` — `{ emoji, title, items: T[] }`
-  - `routine` — `Section<{ emoji, text }>` (상단 callout)
-  - `keywords`, `movies`, `playlist`, `goals` — `Section<Card>`, `Card = { emoji, title, subtitle?, description }`
-  - `weekend` — `Section<{ time, emoji, description }>`
-  - `strengths` — `Section<{ title, description }>`
-  - `sayHi` — `Section<string>`
-- `links` — `{ label, url }[]` (비어 있으면 링크 영역을 렌더링하지 않음)
+- `stamp` — `{ top, bottom }`: 페이지 위아래 필름 롤 띠에 들어가는 문구
+- `hero` — `{ eyebrow, title, name, nameEn, major }`
+- `frames` — `Frame[]`: 본문 섹션 목록. 배열 순서가 곧 화면 순서입니다.
+  - `Frame = { frame: "01", label: "DAILY ROUTINE", title, groups: Group[] }`
+  - `Group = { label?, layout: "sheet" | "list" | "timeline", items: Entry[] }`
+    - 그룹이 2개면 데스크톱에서 2열로 나란히 놓입니다.
+  - `Entry = { title, meta?, description }`: 모든 항목이 같은 형태를 씁니다.
+- `sayHello` — `{ label, title, items: string[] }`: 다크 푸터에 들어갑니다.
+- `links` — `{ label, url }[]`: 비어 있으면 링크 영역을 렌더링하지 않습니다.
 - `closing` — 마지막 인사 문구
 
-새 카드형 섹션은 새 컴포넌트를 만들지 말고 `Card` 타입 + `components/CardGrid.tsx`를 재사용합니다.
+새 섹션은 새 컴포넌트를 만들지 말고 `frames`에 항목을 추가합니다. 레이아웃은 기존 `layout` 세 가지 중에서 고릅니다.
+- `sheet` → `ContactSheet`
+- `list` → `EntryList`
+- `timeline` → `Timeline`
 
 필드를 추가·변경할 때는 `data/profile.json`과 `types/profile.ts`를 함께 수정합니다.
 
@@ -59,18 +63,39 @@
 app/
   layout.tsx        # 루트 레이아웃, 메타데이터
   page.tsx          # 유일한 페이지
-  globals.css       # Tailwind 지시어
-components/         # 섹션 단위 컴포넌트 (Intro, Interests, Links 등)
+  globals.css       # Tailwind, 색상/폰트 토큰, film-strip 유틸리티
+components/         # FilmStamp, Hero, Frame(+ContactSheet/EntryList/Timeline), SayHello, LinkList
 data/
   profile.json      # 콘텐츠 데이터
 types/
   profile.ts        # 데이터 타입 정의
 ```
 
+## 디자인 — 필름 카메라 & 컨셉 매거진
+
+컨셉은 필름 밀착 인화지(Contact Sheet)와 아날로그 다이어리입니다. 정적이지만 감각적인 오프라인 잡지처럼 보여야 합니다.
+
+- **인터랙션과 애니메이션은 넣지 않습니다.** `"use client"`, 클라이언트 JS, transition·animation 효과를 쓰지 않습니다.
+- **카드 박스와 그림자를 쓰지 않습니다.** 영역은 얇은 실선(border)과 여백으로만 구분합니다. `shadow-*`, 배경이 채워진 둥근 카드는 쓰지 않습니다.
+- **색상:** `globals.css`의 `@theme` 토큰만 씁니다. 임의의 hex 값이나 Tailwind 기본 팔레트는 쓰지 않습니다.
+  - `paper` #F4F1EA — 배경
+  - `ink` #1A1918 — 본문
+  - `meta` #66635B — 보조 텍스트
+  - `accent` #C84B31 — 포인트
+  - `line` #D5D0C5 — 구분선
+  - `night` #121211 — 푸터
+- **accent는 아주 제한적으로 씁니다.** 현재는 섹션 헤더의 `FRAME 0N`에만 쓰고 있습니다.
+- **폰트:**
+  - 본문: Pretendard (`font-sans`, jsDelivr CDN)
+  - 영문과 메타데이터: Courier Prime (`font-mono`, `next/font/google`)
+  - 메타데이터는 `font-mono text-xs uppercase tracking-[0.2em] text-meta` 패턴을 따릅니다.
+- **섹션 헤더:** `FRAME 0N — LABEL` 형식으로 쓰고, 오른쪽에 `0N/총개수`를 둡니다.
+- **다크 모드:** 지원하지 않습니다. 인화지 톤을 고정합니다.
+
 ## 코딩 컨벤션
 
-- 기본은 Server Component. 상호작용이 꼭 필요할 때만 `"use client"`를 사용합니다.
-- 스타일은 Tailwind 유틸리티 클래스로만 작성합니다. 별도 CSS 파일/모듈은 만들지 않습니다.
+- 모든 컴포넌트는 Server Component입니다.
+- 스타일은 Tailwind 유틸리티 클래스로 작성합니다. 커스텀 CSS는 `globals.css`의 테마 토큰과 `@utility`에만 둡니다.
 - 모바일 우선 반응형으로 작성합니다.
 - 시맨틱 HTML(`main`, `section`, `h1`~`h2`, `ul`)을 사용하고, 외부 링크에는 `target="_blank" rel="noopener noreferrer"`를 붙입니다.
 - 컴포넌트는 함수형으로 작성하고, 파일당 컴포넌트 하나를 default export 합니다.

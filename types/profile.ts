@@ -1,37 +1,41 @@
-export type Section<T> = {
-  emoji: string;
-  title: string;
-  items: T[];
+export type Stamp = {
+  top: string;
+  bottom: string;
 };
 
 export type Hero = {
-  greeting: string;
+  eyebrow: string;
+  title: string;
   name: string;
-  highlight: string;
-  tagline: string;
+  nameEn: string;
+  major: string;
 };
 
-export type RoutineItem = {
-  emoji: string;
-  text: string;
-};
-
-export type Card = {
-  emoji: string;
+export type Entry = {
   title: string;
-  subtitle?: string;
+  meta?: string;
   description: string;
 };
 
-export type WeekendItem = {
-  time: string;
-  emoji: string;
-  description: string;
+export type GroupLayout = "sheet" | "list" | "timeline";
+
+export type Group = {
+  label?: string;
+  layout: GroupLayout;
+  items: Entry[];
 };
 
-export type Strength = {
+export type Frame = {
+  frame: string;
+  label: string;
   title: string;
-  description: string;
+  groups: Group[];
+};
+
+export type SayHello = {
+  label: string;
+  title: string;
+  items: string[];
 };
 
 export type Link = {
@@ -40,15 +44,10 @@ export type Link = {
 };
 
 export type Profile = {
+  stamp: Stamp;
   hero: Hero;
-  routine: Section<RoutineItem>;
-  keywords: Section<Card>;
-  movies: Section<Card>;
-  playlist: Section<Card>;
-  weekend: Section<WeekendItem>;
-  strengths: Section<Strength>;
-  goals: Section<Card>;
-  sayHi: Section<string>;
+  frames: Frame[];
+  sayHello: SayHello;
   links: Link[];
   closing: string;
 };
